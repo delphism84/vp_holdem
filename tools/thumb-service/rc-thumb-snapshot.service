@@ -1,0 +1,19 @@
+[Unit]
+Description=Stream thumbnail auto-generation (SRS + ffmpeg, 10s live / 1min fallback)
+After=network.target srs.service
+Wants=srs.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/node /var/www/@rc-streamserver/srs/srs-server-6.0-b0/trunk/scripts/thumb-snapshot.mjs
+Environment=SRS_API_URL=http://127.0.0.1:1985
+Environment=THUMB_OUT_DIR=/var/www/static/live/thumb
+Environment=RTMP_BASE=rtmp://127.0.0.1:1935/live
+Environment=INTERVAL_LIVE_SEC=10
+Environment=INTERVAL_FALLBACK_SEC=60
+Restart=always
+RestartSec=5
+User=root
+
+[Install]
+WantedBy=multi-user.target

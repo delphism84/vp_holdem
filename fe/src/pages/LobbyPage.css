@@ -1,0 +1,218 @@
+/* 로비: back.png 배경, 모바일 2열, 16:9 썸네일 */
+
+.lobby {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  background-color: #000;
+  background-image: url(/assets/back.png);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: #fff;
+  font-family: 'Noto Sans KR', -apple-system, sans-serif;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* ----- 최상단 앱바: 로고, 설정, 유저 뱃지·이름·아이콘 ----- */
+.lobby-appbar {
+  flex-shrink: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: clamp(44px, 6vh, 52px);
+  padding: 6px 12px 6px 16px;
+  background: rgba(0, 0, 0, 0.75);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.lobby-appbar__left {
+  flex-shrink: 0;
+}
+
+.lobby-appbar__logo-link {
+  display: block;
+  line-height: 0;
+}
+
+.lobby-appbar__logo {
+  height: 28px;
+  width: auto;
+  max-width: 160px;
+  object-fit: contain;
+  display: block;
+}
+
+.lobby-appbar__right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.lobby-appbar__icon-btn {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+}
+
+.lobby-appbar__icon-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.lobby-appbar__user {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.lobby-appbar__badge {
+  flex-shrink: 0;
+  padding: 2px 6px;
+  font-size: 10px;
+  font-weight: 700;
+  background: rgba(33, 150, 243, 0.9);
+  color: #fff;
+  border-radius: 4px;
+}
+
+.lobby-appbar__name {
+  font-size: 13px;
+  font-weight: 500;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 80px;
+}
+
+.lobby-appbar__avatar {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  color: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lobby-appbar__avatar svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* ----- 메인: 2열 그리드, 세로 스크롤 + 커스텀 스크롤바 ----- */
+.lobby-main {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 12px 10px 24px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.35) transparent;
+}
+
+.lobby-main::-webkit-scrollbar {
+  width: 6px;
+}
+
+.lobby-main::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.lobby-main::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.35);
+  border-radius: 3px;
+}
+
+.lobby-main::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* 모바일에서 가로 2열 고정 */
+.lobby-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.lobby-card {
+  border-radius: 10px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.lobby-card__link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+/* 16:9 FHD 썸네일 */
+.lobby-card__thumb-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.lobby-card__thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.lobby-card__info {
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 0;
+}
+
+.lobby-card__meta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.lobby-card__meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.lobby-card__meta-item svg {
+  flex-shrink: 0;
+  opacity: 0.9;
+}
+
+.lobby-card__meta-item--ended {
+  color: rgba(255, 180, 80, 0.95);
+}
+

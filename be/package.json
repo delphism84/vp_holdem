@@ -1,0 +1,14 @@
+{
+  "name": "zenithpark-be",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "barcode-server": "node ws/barcodeserver.js"
+  },
+  "dependencies": {
+    "mongodb": "^6.10.0",
+    "ws": "^8.18.0"
+  }
+}

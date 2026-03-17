@@ -1,0 +1,11 @@
+{
+  "name": "thumb-service",
+  "version": "1.0.0",
+  "description": "Stream thumbnail auto-generation (SRS + ffmpeg)",
+  "type": "module",
+  "main": "thumb-snapshot.mjs",
+  "scripts": {
+    "start": "node thumb-snapshot.mjs",
+    "thumb": "node thumb-snapshot.mjs"
+  }
+}

@@ -1,0 +1,16 @@
+# MongoDB for zenith_holdem (local)
+# Run: docker compose up -d
+# Connection: mongodb://127.0.0.1:27017
+
+services:
+  mongodb:
+    image: mongo:7
+    container_name: zenith-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - zenith_mongo_data:/data/db
+    restart: unless-stopped
+
+volumes:
+  zenith_mongo_data:

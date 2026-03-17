@@ -1,0 +1,506 @@
+/* ===== 검정 배경 + back.png + 반투명, 가운데 스크롤 없음 / 게임이력은 남은 영역 후순위 ===== */
+
+.game-screen {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  max-height: -webkit-fill-available;
+  overflow: hidden;
+  color: #fff;
+  font-family: 'Noto Sans KR', -apple-system, sans-serif;
+}
+
+.game-screen__bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: #000 url('/assets/back.png') center center / cover no-repeat;
+}
+
+.game-screen > header,
+.game-screen > .section-video,
+.game-screen > .main-wrap,
+.game-screen > nav {
+  position: relative;
+  z-index: 1;
+}
+
+/* ----- 1. 상단 네비 5vh ----- */
+.nav-top {
+  flex: 0 0 5vh;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  background: rgba(0, 0, 0, 0.6);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.nav-top__logo img {
+  height: 28px;
+  width: auto;
+  display: block;
+}
+
+.nav-top__info {
+  flex: 1;
+  text-align: center;
+  min-width: 0;
+}
+
+.nav-top__text {
+  font-size: 11pt;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nav-top__right {
+  flex-shrink: 0;
+}
+
+/* ----- 2. 라이브 영상 35vh ----- */
+.section-video {
+  flex: 0 0 35vh;
+  min-height: 0;
+  position: relative;
+}
+
+.section-video__wrap {
+  position: absolute;
+  inset: 0;
+}
+
+.section-video__iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+.section-video__live {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.section-video__live-badge {
+  background: #c41e3a;
+  color: #fff;
+  font-size: 11pt;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.section-video__viewers {
+  font-size: 11pt;
+  color: #fff;
+}
+
+/* ----- 3. main-wrap: 가운데(우선, 스크롤 없음) + 탭(남은 영역) ----- */
+.main-wrap {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 가운데 배팅/플레이어 영역 - 스크롤 없음, 중요 */
+.section-game {
+  flex: 0 0 auto;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 10px;
+  background: rgba(26, 26, 26, 0.75);
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.info-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 9pt;
+  color: #fff;
+}
+
+.info-item svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  opacity: 0.9;
+}
+
+/* 플레이어 4×2 그리드 */
+.players-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 4px;
+}
+
+.player-panel {
+  background: rgba(45, 45, 45, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 4px 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  opacity: 0.9;
+}
+
+.player-panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2px;
+  overflow: hidden;
+}
+
+.player-panel__id,
+.player-panel__meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 9pt;
+  color: #fff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.player-panel__id svg,
+.player-panel__meta svg {
+  width: 11px;
+  height: 11px;
+  flex-shrink: 0;
+  opacity: 0.9;
+}
+
+.player-panel__bet {
+  font-size: 9pt;
+  color: #fff;
+}
+
+.player-panel__cards {
+  display: flex;
+  gap: 2px;
+}
+
+.player-panel__cards img {
+  width: 22px;
+  height: 30px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+/* Row 3: 내 플레이어 정보 한 줄 (잔액, 마지막 배팅, 총배팅, 패정보, 족보) */
+.my-info-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  padding: 6px 8px;
+  background: rgba(196, 30, 58, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  font-size: 9pt;
+  color: #fff;
+}
+
+.my-info__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.my-info__item strong {
+  font-weight: 600;
+  margin-right: 2px;
+}
+
+/* Flop */
+.flop-row {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+  padding: 2px 0;
+}
+
+.flop-row img {
+  width: 26px;
+  height: 36px;
+  object-fit: cover;
+}
+
+/* POT */
+.pot-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 4px 0;
+  font-size: 11pt;
+  color: #fff;
+}
+
+.pot-row svg {
+  width: 16px;
+  height: 16px;
+  opacity: 0.9;
+}
+
+.pot-row__amount {
+  font-size: 16pt;
+  font-weight: 700;
+}
+
+/* 칩 */
+.chips-row {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding: 2px 0;
+}
+
+.chip-btn {
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  line-height: 0;
+}
+
+.chip-btn img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  display: block;
+}
+
+/* 액션 버튼 */
+.actions-row {
+  display: flex;
+  gap: 6px;
+}
+
+.actions-row .btn {
+  flex: 1;
+  min-width: 0;
+}
+
+/* 내 패 (가운데 영역 내부) */
+.section-game .section-my-hand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 4px 0;
+  background: transparent;
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  min-height: 0;
+}
+
+.section-game .section-my-hand svg {
+  width: 18px;
+  height: 18px;
+  opacity: 0.9;
+}
+
+.section-game .section-my-hand__label {
+  font-size: 10pt;
+  color: #fff;
+}
+
+.section-game .section-my-hand img {
+  width: 26px;
+  height: 36px;
+  object-fit: cover;
+}
+
+/* ----- 하단 탭 영역: 남은 영역 사용 (후순위) ----- */
+.section-tab {
+  flex: 0 0 0;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: rgba(20, 20, 20, 0.9);
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.section-tab.is-visible {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: auto;
+}
+
+.tab-content {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 6px;
+}
+
+.tab-content--history {
+  overflow: hidden;
+}
+
+.history-grid {
+  display: grid;
+  grid-template-columns: repeat(16, 1fr);
+  grid-template-rows: repeat(16, 1fr);
+  gap: 2px;
+  width: 100%;
+  height: 100%;
+  min-height: 120px;
+  box-sizing: border-box;
+}
+
+.history-cell {
+  border-radius: 2px;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  background: rgba(0, 0, 0, 0.3);
+  min-width: 0;
+  min-height: 0;
+}
+
+.tab-content--chat {
+  overflow: hidden;
+}
+
+.tab-chat__messages {
+  flex: 1;
+  overflow-y: auto;
+  font-size: 9pt;
+  line-height: 1.25;
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+.tab-chat__input {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 12px;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  font-size: 11pt;
+  font-family: inherit;
+}
+
+.input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* 공통 버튼 */
+.btn {
+  padding: 6px 10px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  font-size: 11pt;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.btn--primary {
+  background: rgba(196, 30, 58, 0.4);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.btn--primary:hover {
+  background: rgba(196, 30, 58, 0.6);
+}
+
+/* ----- 4. 하단 네비 5vh ----- */
+.nav-bottom {
+  flex: 0 0 5vh;
+  min-height: 44px;
+  display: flex;
+  gap: 4px;
+  padding: 6px 8px;
+  background: rgba(0, 0, 0, 0.85);
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.nav-bottom__btn {
+  flex: 1;
+  padding: 6px 8px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  background: rgba(45, 45, 45, 0.8);
+  color: #fff;
+  font-size: 11pt;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.nav-bottom__btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.nav-bottom__btn.is-active {
+  background: rgba(196, 30, 58, 0.5);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.orientation-msg {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.9);
+  color: #fff;
+  font-size: 16pt;
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+  .orientation-msg {
+    display: flex;
+  }
+}
