@@ -8,6 +8,7 @@
     "barcode-server": "node ws/barcodeserver.js"
   },
   "dependencies": {
+    "dotenv": "^17.3.1",
     "mongodb": "^6.10.0",
     "ws": "^8.18.0"
   }

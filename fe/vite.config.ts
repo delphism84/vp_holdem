@@ -8,9 +8,17 @@ export default defineConfig({
     port: 5173,
     host: true,
     strictPort: true,
+    /** 로컬 dev: FE는 :5173, BE는 :3080 — 동일 origin으로 /ws/holdem 프록시 */
+    proxy: {
+      '/ws/holdem': {
+        target: 'http://127.0.0.1:3080',
+        ws: true,
+        changeOrigin: true,
+      },
+    },
     hmr: {
       protocol: 'wss',
-      host: 'game.fairshipstore.com',
+      host: 'game.kingofzeusfin.com',
       clientPort: 443,
     },
   },

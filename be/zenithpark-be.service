@@ -1,0 +1,17 @@
+[Unit]
+Description=ZenithPark BE (barcode + holdem WebSocket)
+After=network.target mongodb.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/var/zenithpark/be
+EnvironmentFile=-/var/zenithpark/be/.env
+ExecStart=/usr/bin/node /var/zenithpark/be/src/index.js
+Restart=on-failure
+RestartSec=3
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,9 @@
+# 빌드 후 호스트 문서 루트로 복사 (호스트 nginx: /var/zenithpark/fe/dist — sites-available/kingofzeusfin.com)
+services:
+  zenithpark-fe:
+    build: .
+    image: zenithpark-fe:latest
+    volumes:
+      - /var/zenithpark/fe/dist:/export
+    command: >
+      sh -c "rm -rf /export/* && cp -a /usr/share/nginx/html/. /export/ && echo OK: exported to /var/zenithpark/fe/dist"

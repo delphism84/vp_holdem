@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import './LobbyPage.css'
 
-const THUMB_BASE = 'https://stream.fairshipstore.com/live/thumb'
+const THUMB_BASE = 'https://stream.kingofzeusfin.com/live/thumb'
 
 /** table01_01, table02_01, ... table16_01 썸네일 16개 */
 const STREAM_IDS = Array.from({ length: 16 }, (_, i) =>
@@ -62,7 +62,10 @@ export default function LobbyPage() {
         <ul className="lobby-grid">
           {GAMES.map((game) => (
             <li key={game.streamId} className="lobby-card">
-              <Link to={`/game?stream=${game.streamId}`} className="lobby-card__link">
+              <Link
+                to={`/game?stream=${game.streamId}&userId=player-1&table=table01`}
+                className="lobby-card__link"
+              >
                 <Thumbnail streamId={game.streamId} />
                 <div className="lobby-card__info">
                   <div className="lobby-card__meta">

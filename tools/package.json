@@ -6,6 +6,7 @@
   "scripts": {
     "generate": "node generate-images.mjs",
     "card-back": "node card-back-composite.mjs",
+    "cards:deck:ai": "node generate-holdem-deck-ai.mjs",
     "chips": "node generate-chips.mjs",
     "chips:ai": "node generate-chips-ai.mjs",
     "cards:ai": "node generate-cards-ai.mjs",

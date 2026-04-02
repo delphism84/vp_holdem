@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { IconUser, IconClock, IconBet, IconPot, IconRoom, IconBlind, IconCards } from './Icons'
 import './GameScreen.css'
 
-const LIVE_STREAM_URL = 'https://stream.fairshipstore.com/live/player.html?stream=table12_01'
+const LIVE_STREAM_URL = 'https://stream.kingofzeusfin.com/live/player.html?stream=table12_01'
 
 const CHIP_MAP: Record<number, string> = { 10: 'chip_red', 20: 'chip_blue', 50: 'chip_green', 100: 'chip_gold', 200: 'chip_purple', 500: 'chip_black' }
 const CHIP_VALUES = [10, 20, 50, 100, 200, 500] as const

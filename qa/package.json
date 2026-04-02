@@ -1,0 +1,16 @@
+{
+  "name": "zenithpark-qa",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "verify:bets": "node scripts/verify-bet-distribution.mjs",
+    "qa:all": "playwright test && node scripts/verify-bet-distribution.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0",
+    "mongodb": "^6.10.0"
+  }
+}

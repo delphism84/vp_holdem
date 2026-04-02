@@ -51,7 +51,7 @@ node thumb-snapshot.mjs
    sudo systemctl enable --now rc-thumb-snapshot.service
    ```
 
-4. **웹 서버(nginx 등)**에서 `https://stream.fairshipstore.com/live/thumb/` 를 위 디렉터리로 서빙하도록 설정:
+4. **웹 서버(nginx 등)**에서 `https://stream.kingofzeusfin.com/live/thumb/` 를 위 디렉터리로 서빙하도록 설정:
 
    ```nginx
    location /live/thumb/ {

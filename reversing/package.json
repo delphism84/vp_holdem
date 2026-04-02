@@ -1,0 +1,9 @@
+{
+  "name": "zenithpark-holdem-reversing",
+  "private": true,
+  "type": "module",
+  "description": "Holdem Socket.IO probe / reversing helpers (logs under ./logs)",
+  "dependencies": {
+    "socket.io-client": "^4.8.1"
+  }
+}

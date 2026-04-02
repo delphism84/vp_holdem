@@ -1,6 +1,17 @@
-/* UI_NEW — 모바일 우선, 배경 back.png, 컨트롤 70% 투명 */
-
+/* UI_NEW — 모바일 우선, 배경 back.png, 컨트롤 70% 투명
+ * 세로 화면: 영상만 flex 가변, 그 아래 패널은 dvh 비율·고정 높이
+ */
 .ui-new {
+  --ui-header-h: clamp(36px, 5.5dvh, 46px);
+  --ui-phase-h: 2.25rem;
+  --ui-player-grid-h: clamp(168px, 32dvh, 280px);
+  --ui-status-h: 2.75rem;
+  --ui-community-h: clamp(64px, 11dvh, 88px);
+  --ui-dock-user-h: clamp(3.35rem, 8.5dvh, 4rem);
+  --ui-dock-bet-h: 3.5rem;
+  --ui-slot-text-h: 2.35rem;
+  --ui-slot-cards-h: 36px;
+
   display: flex;
   flex-direction: column;
   min-height: 100vh;
@@ -17,11 +28,38 @@
   font-family: 'Noto Sans KR', -apple-system, sans-serif;
 }
 
+/* 중앙: 영상만 남는 높이 흡수, 하단 블록은 고정 높이 (극소 화면은 세로 스크롤 허용) */
+.ui-new .ui-new__scroll {
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.ui-new > .game-phase-banner {
+  flex-shrink: 0;
+}
+
+.ui-new .ui-new__dock {
+  flex: 0 0 auto;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  background: rgba(8, 8, 12, 0.96);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  padding-bottom: env(safe-area-inset-bottom, 0);
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.45);
+}
+
 /* ----- 상단 헤더 바 (로고 zp.png) ----- */
 .ui-new .header-bar {
-  flex-shrink: 0;
-  height: clamp(36px, 5vh, 44px);
+  flex: 0 0 auto;
+  height: var(--ui-header-h);
   min-height: 36px;
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -60,12 +98,29 @@
   flex-shrink: 0;
 }
 
+.ui-new .header-bar__logo-btn {
+  display: block;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  line-height: 0;
+  border-radius: 6px;
+}
+
+.ui-new .header-bar__logo-btn:focus-visible {
+  outline: 2px solid rgba(144, 202, 249, 0.9);
+  outline-offset: 2px;
+}
+
 .ui-new .header-bar__logo-img {
   height: 32px;
   width: auto;
   max-width: 200px;
   object-fit: contain;
   display: block;
+  pointer-events: none;
 }
 
 .ui-new .header-bar__logo {
@@ -96,14 +151,14 @@
   .ui-new .header-bar { padding: 0 16px 0 20px; }
 }
 
-/* ----- 라이브 스트림 ----- */
+/* ----- 라이브 스트림 (세로: 유일 가변 높이) ----- */
 .ui-new .live-stream {
-  flex: 0 0 auto;
+  flex: 1 1 auto;
   position: relative;
   width: 100%;
-  aspect-ratio: 16 / 9;
-  max-height: 40vh;
-  min-height: 160px;
+  min-height: 100px;
+  height: auto;
+  max-height: none;
   overflow: hidden;
   border-radius: 0 0 12px 12px;
 }
@@ -148,44 +203,163 @@
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
 }
 
-/* ----- 플레이어 핸드 8슬롯: padding 1px, 더 확장 ----- */
-.ui-new .player-hands {
+/* ----- 게임 단계 배너 (WS) ----- */
+.ui-new .game-phase-banner {
   flex: 0 0 auto;
+  min-height: var(--ui-phase-h);
+  padding: 6px 12px;
+  box-sizing: border-box;
+  background: rgba(0, 0, 0, 0.55);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: clamp(0.7rem, 2vw, 0.8rem);
+  color: #e0e0e0;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 6px;
   overflow: hidden;
-  padding: 1px;
-  background: rgba(0, 0, 0, 0.3);
 }
 
-.ui-new .player-hands__grid {
+.ui-new .game-phase-banner__phase {
+  font-weight: 700;
+  color: #90caf9;
+}
+
+.ui-new .game-phase-banner__meta {
+  opacity: 0.75;
+  font-size: 0.65rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.ui-new .ws-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  margin-right: 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  background: rgba(180, 60, 60, 0.5);
+  color: #fff;
+}
+
+.ui-new .ws-pill[data-connected='true'] {
+  background: rgba(46, 125, 50, 0.55);
+}
+
+.ui-new .deal-ack-bar {
+  flex: 0 0 auto;
+  padding: 6px 12px;
+  display: flex;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.ui-new .betting-controls__hint {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.ui-new .bottom-panel__content--json {
+  max-height: 28vh;
+  overflow: auto;
+}
+
+.ui-new .ws-debug-pre {
+  margin: 0;
+  padding: 8px;
+  font-size: 10px;
+  line-height: 1.35;
+  color: #b0bec5;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.ui-new .card-img--back {
+  background: linear-gradient(145deg, #1a237e 0%, #311b92 100%);
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  min-width: 36px;
+  min-height: 50px;
+}
+
+.ui-new .card-fallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  min-height: 50px;
+  padding: 4px;
+  font-size: 10px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 6px;
+  color: #fff;
+}
+
+/* ----- 플레이어 3×3: 그리드 고정 높이, 슬롯 내 텍스트/카드 행 고정 ----- */
+.ui-new .player-hands {
+  flex: 0 0 var(--ui-player-grid-h);
+  height: var(--ui-player-grid-h);
+  min-height: 0;
+  overflow: hidden;
+  padding: 4px 6px;
+  box-sizing: border-box;
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.ui-new .player-hands__grid--3x3 {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  grid-template-rows: repeat(2, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(3, 1fr);
   gap: 4px;
-  aspect-ratio: 4 / 2;
-  max-height: 38vh;
-  min-height: 200px;
-}
-
-@media (max-width: 340px) {
-  .ui-new .player-hands__grid {
-    grid-template-columns: repeat(2, 1fr);
-    grid-template-rows: repeat(4, 1fr);
-    aspect-ratio: 2 / 4;
-  }
+  width: 100%;
+  max-width: min(100%, 420px);
+  height: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+  min-height: 0;
 }
 
 .ui-new .player-slot {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  padding: 3px;
-  background: rgba(45, 45, 45, 0.1);
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: block;
+  padding: 2px 3px 3px;
+  box-sizing: border-box;
+  background: rgba(45, 45, 45, 0.2);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  min-width: 0;
+  max-width: 100%;
   min-height: 0;
-  opacity: 0.9;
+  opacity: 1;
+  overflow: hidden;
+}
+
+.ui-new .player-slot__layout {
+  display: grid;
+  grid-template-columns: 0.95fr 1.05fr;
+  grid-template-rows: 1fr auto;
+  gap: 2px 4px;
+  height: 100%;
+  min-height: 0;
+}
+
+/* seat가 있는 슬롯은 선명하게 */
+.ui-new .player-slot--default {
+  opacity: 1;
+}
+
+/* 좌석 자체가 없는 슬롯은 더 흐리게 (투명도 90%) */
+.ui-new .player-slot--no-seat {
+  opacity: 0.3;
+}
+
+.ui-new .player-slot--empty-seat {
+  opacity: 0.3;
 }
 
 /* 배팅 차례: 배경색 구분 + 깜빡임 (10% 투명) */
@@ -210,28 +384,35 @@
 
 .ui-new .player-slot__timer {
   position: absolute;
-  top: 3px;
-  right: 3px;
-  padding: 2px 6px;
-  background: rgba(0, 0, 0, 0.6);
-  border-radius: 4px;
-  font-size: 10px;
-  font-weight: 700;
+  top: 1px;
+  right: 1px;
+  padding: 1px 3px;
+  background: rgba(33, 150, 243, 0.85);
+  border-radius: 3px;
+  font-size: 7px;
+  font-weight: 800;
   color: #fff;
+  letter-spacing: 0.02em;
 }
 
 .ui-new .player-slot__head {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  justify-content: center;
   width: 100%;
-  padding-right: 32px;
+  height: 100%;
+  max-height: none;
+  padding-right: 0;
+  box-sizing: border-box;
   flex-shrink: 0;
   min-width: 0;
+  gap: 2px;
+  overflow: hidden;
 }
 
 .ui-new .player-slot__id {
-  font-size: clamp(0.625rem, 1.8vw, 0.75rem);
+  font-size: clamp(0.5rem, 2.2vw, 0.65rem);
   color: #fff;
   white-space: nowrap;
   overflow: hidden;
@@ -239,44 +420,257 @@
   width: 100%;
   text-align: left;
   flex-shrink: 0;
+  line-height: 1.1;
 }
 
-.ui-new .player-slot__chips {
-  font-size: clamp(0.625rem, 1.5vw, 0.6875rem);
+.ui-new .player-slot__badge {
+  font-size: 9px;
+  line-height: 1;
+  padding: 2px 4px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.ui-new .player-slot__badge--act { background: rgba(33, 150, 243, 0.28); }
+.ui-new .player-slot__badge--fold { background: rgba(120, 120, 120, 0.3); }
+.ui-new .player-slot__badge--wait { background: rgba(80, 120, 80, 0.28); }
+.ui-new .player-slot__badge--empty { background: rgba(90, 90, 90, 0.2); }
+
+.ui-new .player-slot__badges {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ui-new .player-slot__blind {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1;
   color: #fff;
-  margin-top: 2px;
-  flex-shrink: 0;
-  text-align: left;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+}
+
+.ui-new .player-slot__blind--sb {
+  background: linear-gradient(180deg, rgba(66, 165, 245, 0.95), rgba(25, 118, 210, 0.9));
+}
+
+.ui-new .player-slot__blind--bb {
+  background: linear-gradient(180deg, rgba(255, 167, 38, 0.95), rgba(245, 124, 0, 0.9));
+}
+
+.ui-new .player-slot__meta {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  font-size: clamp(0.45rem, 1.8vw, 0.58rem);
+  line-height: 1.1;
+  color: rgba(255, 255, 255, 0.92);
+  min-width: 0;
+  width: 100%;
+  overflow: hidden;
+}
+
+.ui-new .player-slot__meta--empty {
+  opacity: 0.65;
+}
+
+.ui-new .player-slot__stack {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.ui-new .player-slot__bet {
+  font-size: clamp(0.45rem, 1vw, 0.55rem);
+  opacity: 0.85;
+  white-space: nowrap;
 }
 
 .ui-new .player-slot__cards {
   display: flex;
   gap: 2px;
-  margin-top: 4px;
-  padding: 0 2px;
-  flex: 1 1 auto;
-  min-height: clamp(36px, 10vw, 56px);
-  align-items: stretch;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  min-height: 0;
+  max-height: none;
+  align-items: center;
   width: 100%;
   box-sizing: border-box;
+  justify-content: flex-end;
+  grid-column: 2;
+  grid-row: 1;
 }
 
 .ui-new .player-slot .card-img {
   flex: 1 1 0;
   min-width: 0;
-  min-height: 100%;
-  height: auto;
+  max-width: 50%;
+  height: 100%;
   max-height: 100%;
   border-radius: 2px;
   object-fit: contain;
   display: block;
 }
 
-/* ----- 커뮤니티 카드 + 플롭 글씨 좌우 배치(카드 최대 크기) ----- */
+.ui-new .player-slot .card-img--back {
+  height: 100%;
+  min-height: 100%;
+  max-height: 100%;
+}
+
+.ui-new .player-slot__cards:has(.player-slot__seat-btn) {
+  justify-content: center;
+  align-items: stretch;
+}
+
+.ui-new .player-slot__seat-btn {
+  flex: 1 1 100%;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  min-height: 100%;
+  max-height: 100%;
+  border-radius: 6px;
+  border: 1px solid rgba(33, 150, 243, 0.55);
+  background: linear-gradient(180deg, rgba(33, 150, 243, 0.35) 0%, rgba(25, 118, 210, 0.25) 100%);
+  color: #fff;
+  font-size: clamp(0.95rem, 4vw, 1.125rem);
+  font-weight: 800;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.ui-new .player-slot__seat-btn:hover:not(:disabled) {
+  background: linear-gradient(180deg, rgba(33, 150, 243, 0.5) 0%, rgba(25, 118, 210, 0.4) 100%);
+}
+
+.ui-new .player-slot__seat-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.ui-new .player-slot__betline {
+  grid-column: 1;
+  grid-row: 2;
+  font-size: clamp(0.46rem, 1.7vw, 0.58rem);
+  color: rgba(255, 255, 255, 0.82);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ui-new .player-slot--pot {
+  background: rgba(130, 95, 20, 0.24);
+  border-color: rgba(255, 220, 120, 0.4);
+}
+
+.ui-new .pot-slot {
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  height: 100%;
+  gap: 2px;
+}
+
+.ui-new .pot-slot__line {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: clamp(0.5rem, 1.9vw, 0.62rem);
+  font-weight: 700;
+  color: #ffe8b0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ui-new .pot-slot__icon {
+  font-size: 11px;
+  line-height: 1;
+}
+
+/* ----- 상태창: To call / Pot / 서버 에뮬 (고정 높이) ----- */
+.ui-new .game-status-bar {
+  flex: 0 0 var(--ui-status-h);
+  height: var(--ui-status-h);
+  box-sizing: border-box;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.45);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+
+.ui-new .game-status-bar__row {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  font-size: clamp(0.625rem, 1.9vw, 0.78rem);
+  line-height: 1.2;
+}
+
+.ui-new .game-status-bar__item {
+  color: #fff;
+  white-space: nowrap;
+}
+
+.ui-new .game-status-bar__label {
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.65);
+  margin-right: 4px;
+}
+
+.ui-new .game-status-bar__value {
+  font-weight: 700;
+  color: #e3f2fd;
+}
+
+.ui-new .game-status-bar__item--pot .game-status-bar__value {
+  color: #ffe082;
+}
+
+.ui-new .game-status-bar__hint {
+  flex: 1 1 140px;
+  min-width: 0;
+  font-size: clamp(0.6rem, 1.8vw, 0.72rem);
+  color: rgba(255, 255, 255, 0.55);
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ----- 커뮤니티 카드 (고정 높이 행) ----- */
 .ui-new .community-cards {
-  flex-shrink: 0;
-  padding: 6px 8px;
+  flex: 0 0 var(--ui-community-h);
+  height: var(--ui-community-h);
+  box-sizing: border-box;
+  padding: 4px 6px;
   background: rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+.ui-new .community-cards--compact .community-cards__row {
+  width: 100%;
+  min-height: 0;
 }
 
 .ui-new .community-cards__row {
@@ -303,6 +697,29 @@
   flex-shrink: 0;
   object-fit: contain;
   display: block;
+}
+
+.ui-new .community-cards__cards--half .card-img {
+  width: clamp(18px, 5dvw, 36px);
+  height: auto;
+  aspect-ratio: 10 / 7;
+  object-fit: cover;
+  object-position: top center;
+  overflow: hidden;
+}
+
+.ui-new .community-cards__cards--half .card-img--half {
+  width: clamp(18px, 5dvw, 36px);
+  height: auto;
+  aspect-ratio: 10 / 7;
+  object-fit: cover;
+  object-position: top center;
+}
+
+.ui-new .community-cards--compact .community-cards__cards:not(.community-cards__cards--half) .card-img {
+  width: clamp(18px, 5dvw, 36px);
+  height: clamp(26px, 7dvw, 48px);
+  max-height: calc(var(--ui-community-h) - 14px);
 }
 
 .ui-new .flop-info {
@@ -336,49 +753,98 @@
   margin-left: 2px;
 }
 
-/* ----- 배팅 컨트롤 (칩 row 2배, 패널 확대) ----- */
+/* ----- 배팅 컨트롤: FOLD | CALL/CHECK | RAISE (항상 도크에 표시) ----- */
 .ui-new .betting-controls {
-  flex-shrink: 0;
-  padding: 10px 12px;
-  background: rgba(0, 0, 0, 0.3);
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  flex: 0 0 var(--ui-dock-bet-h);
+  min-height: var(--ui-dock-bet-h);
+  box-sizing: border-box;
+  padding: 6px 10px 8px;
+  background: transparent;
+  border-top: none;
+  display: flex;
+  align-items: center;
 }
 
 .ui-new .betting-controls__row1 {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: 8px;
-  margin-bottom: 10px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  width: 100%;
+}
+
+.ui-new .betting-controls__actions--full {
+  flex: 1 1 auto;
+  justify-content: center;
+  width: 100%;
+}
+
+.ui-new .betting-controls__info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 0 1 auto;
 }
 
 .ui-new .pot-label {
-  font-size: clamp(0.875rem, 2.8vw, 1.125rem);
+  font-size: clamp(0.75rem, 2.2vw, 0.9rem);
   font-weight: 700;
   color: #fff;
+  white-space: nowrap;
+}
+
+.ui-new .pot-label--sub {
+  font-size: clamp(0.65rem, 1.8vw, 0.75rem);
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.75);
 }
 
 .ui-new .betting-controls__actions {
   display: flex;
-  gap: 4px;
+  flex-shrink: 0;
+  gap: 6px;
+  align-items: center;
+}
+
+.ui-new .ui-new__dock .btn {
+  min-height: 36px;
+  padding: 6px 10px;
 }
 
 .ui-new .btn {
-  min-width: 28px;
-  min-height: 28px;
-  padding: 6px 10px;
-  border-radius: 6px;
-  font-size: clamp(0.6875rem, 1.8vw, 0.8125rem);
-  font-weight: 600;
+  min-width: 56px;
+  min-height: 40px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: clamp(0.7rem, 1.9vw, 0.8rem);
+  font-weight: 700;
+  letter-spacing: 0.04em;
   color: #fff;
   border: none;
   cursor: pointer;
   font-family: inherit;
+  flex: 0 0 auto;
+}
+
+.ui-new .btn--fold {
+  background: linear-gradient(180deg, #5c5c5c 0%, #3d3d3d 100%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.ui-new .btn--call {
+  background: linear-gradient(180deg, #42a5f5 0%, #1976d2 100%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.ui-new .btn--raise {
+  background: linear-gradient(180deg, #66bb6a 0%, #2e7d32 100%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .ui-new .btn--blue {
-  background: #2196F3;
+  background: #2196f3;
 }
 
 .ui-new .btn--gray {
@@ -418,56 +884,79 @@
   object-fit: cover;
 }
 
-/* ----- 유저 정보(나의 플레이어 패널): 2카드, 10% 투명 ----- */
+/* ----- 유저 정보: 한 줄 — 카드 | 잔액 | 닉네임 ----- */
 .ui-new .user-info-row {
-  flex-shrink: 0;
+  flex: 0 0 var(--ui-dock-user-h);
+  height: var(--ui-dock-user-h);
+  box-sizing: border-box;
   display: flex;
-  flex-direction: column;
-  gap: 0;
-  padding: 0;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 4px 12px;
   background: rgba(37, 37, 37, 0.1);
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   min-height: 0;
-}
-
-.ui-new .user-info-row__top {
-  padding: 2px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 0;
-  flex: 1 1 auto;
+  overflow: hidden;
 }
 
 .ui-new .user-info-row__cards {
   display: flex;
-  gap: 4px;
+  gap: 3px;
   flex-shrink: 0;
-  justify-content: center;
   align-items: center;
-  /* 카드 2장이 비율대로 꽉 차게 */
-  width: 100%;
-  max-width: 120px;
+  height: 100%;
+  max-height: calc(var(--ui-dock-user-h) - 8px);
 }
 
 .ui-new .user-info-row__cards .card-img {
-  flex: 1 1 0;
-  min-width: 0;
+  width: auto;
+  height: 100%;
+  max-height: 2.65rem;
   aspect-ratio: 2.5 / 3.5;
-  max-width: 52px;
+  max-width: 38px;
   border-radius: 2px;
   object-fit: contain;
   display: block;
 }
 
-.ui-new .user-info-row__bottom {
+.ui-new .user-info-row__bet-timer {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  padding: 3px 8px 6px;
-  align-self: stretch;
-  flex-shrink: 0;
+  justify-content: center;
+  flex: 0 0 auto;
+  min-width: 4.5rem;
+  padding: 0 6px;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ui-new .user-info-row__bet-timer-label {
+  font-size: clamp(0.5rem, 1.35vw, 0.625rem);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.55);
+  text-transform: uppercase;
+}
+
+.ui-new .user-info-row__bet-timer-value {
+  font-size: clamp(0.8rem, 2.2vw, 1rem);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: #ffecb3;
+  line-height: 1.2;
+}
+
+.ui-new .user-info-row__bet-timer-actor {
+  font-size: clamp(0.5rem, 1.35vw, 0.6rem);
+  color: rgba(255, 255, 255, 0.65);
+  max-width: 5.5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .ui-new .user-info-row__balance {
@@ -475,6 +964,16 @@
   align-items: center;
   gap: 6px;
   min-width: 0;
+  flex: 0 1 auto;
+  max-width: 38%;
+}
+
+.ui-new .user-info-row__balance-text {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  line-height: 1.15;
 }
 
 .ui-new .user-info-row__icon {
@@ -506,23 +1005,62 @@
 .ui-new .user-info-row__hand {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
-  font-size: clamp(0.625rem, 1.8vw, 0.75rem);
+  align-items: flex-end;
+  justify-content: center;
+  text-align: right;
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: clamp(0.65rem, 1.85vw, 0.8rem);
   color: #fff;
+  gap: 4px;
 }
 
-/* ----- 하단 탭: 높이 최소화, 위 row와 padding 1px, 좌우 여백 없음 ----- */
+.ui-new .user-info-row__exit {
+  margin-top: 2px;
+  padding: 4px 10px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #fff;
+  background: rgba(180, 60, 60, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.ui-new .user-info-row__exit:hover {
+  background: rgba(200, 80, 80, 0.65);
+}
+
+.ui-new .user-info-row__hand-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+  width: 100%;
+  min-width: 7.5rem;
+}
+
+/* ----- 하단 JSON 패널 (로고 클릭 시에만) ----- */
 .ui-new .bottom-panel {
-  flex: 1 1 0;
+  flex: 0 1 auto;
+  max-height: min(22vh, 180px);
   min-height: 0;
   display: flex;
   flex-direction: column;
-  background: rgba(26, 26, 26, 0.7);
+  background: rgba(26, 26, 26, 0.88);
   border-radius: 0;
-  margin: 1px 0 0 0;
+  margin: 0;
   overflow: hidden;
   border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ui-new .bottom-panel--ws {
+  flex: 0 1 auto;
+  max-height: min(28dvh, 240px);
+  min-height: 0;
 }
 
 .ui-new .bottom-panel__tabs {

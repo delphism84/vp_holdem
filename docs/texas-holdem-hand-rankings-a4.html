@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Texas Hold'em — Hand Rankings / ចំណាត់ថ្នាក់ដៃកាត</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700&family=Noto+Sans+Khmer:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #1a1a1a;
+      --muted: #444;
+      --border: #ccc;
+      --head: #0d3b2c;
+      --row-alt: #f7f9f8;
+      --card-red: #b30000;
+      --card-black: #111;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    @page {
+      size: A4 portrait;
+      margin: 10mm;
+    }
+
+    html {
+      font-size: 9.5pt;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Noto Sans", "Noto Sans Khmer", system-ui, sans-serif;
+      color: var(--ink);
+      line-height: 1.35;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .sheet {
+      max-width: 190mm;
+      margin: 0 auto;
+      padding: 6mm 8mm 10mm;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 8px;
+      padding-bottom: 6px;
+      border-bottom: 2px solid var(--head);
+    }
+
+    header h1 {
+      margin: 0 0 3px;
+      font-size: 15pt;
+      font-weight: 700;
+      color: var(--head);
+      letter-spacing: 0.02em;
+    }
+
+    header .km {
+      font-family: "Noto Sans Khmer", "Noto Sans", sans-serif;
+      font-size: 12pt;
+      font-weight: 600;
+      color: var(--head);
+    }
+
+    header p {
+      margin: 4px 0 0;
+      font-size: 8.5pt;
+      color: var(--muted);
+    }
+
+    .note {
+      font-size: 8pt;
+      color: var(--muted);
+      margin: 0 0 8px;
+      padding: 5px 7px;
+      background: #f0f4f2;
+      border-left: 3px solid var(--head);
+    }
+
+    h2 {
+      margin: 14px 0 6px;
+      font-size: 10.5pt;
+      color: var(--head);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 3px;
+    }
+
+    h2 .km {
+      font-family: "Noto Sans Khmer", sans-serif;
+      font-weight: 600;
+      font-size: 9.5pt;
+    }
+
+    table.rankings {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 8.5pt;
+    }
+
+    .rankings thead th {
+      background: var(--head);
+      color: #fff;
+      padding: 5px 6px;
+      text-align: left;
+      font-weight: 600;
+    }
+
+    .rankings thead th:nth-child(1) { width: 5%; text-align: center; }
+    .rankings thead th:nth-child(2) { width: 18%; }
+    .rankings thead th:nth-child(3) { width: 26%; }
+    .rankings thead th:nth-child(4) { width: 51%; }
+
+    .rankings tbody tr:nth-child(even) {
+      background: var(--row-alt);
+    }
+
+    .rankings td {
+      padding: 4px 6px;
+      vertical-align: middle;
+      border: 1px solid var(--border);
+    }
+
+    td.rank {
+      text-align: center;
+      font-weight: 700;
+      color: var(--head);
+    }
+
+    td.en {
+      font-weight: 600;
+    }
+
+    td.km {
+      font-family: "Noto Sans Khmer", "Noto Sans", sans-serif;
+      font-size: 8pt;
+    }
+
+    /* Mini playing-card visuals (5 per hand) */
+    .hand-visual {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 3px;
+      align-items: center;
+      justify-content: flex-start;
+    }
+
+    .card {
+      position: relative;
+      width: 26px;
+      height: 38px;
+      border-radius: 3px;
+      border: 1px solid #555;
+      background: linear-gradient(180deg, #fff 0%, #f5f5f5 100%);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+      flex-shrink: 0;
+    }
+
+    .card .corner {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      line-height: 1.05;
+      font-size: 7.5pt;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      text-align: left;
+    }
+
+    /* T = ten (standard poker shorthand on small faces) */
+    .card .corner .tiny {
+      font-size: 6.2pt;
+      font-weight: 700;
+    }
+
+    .card .center-suit {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 13pt;
+      line-height: 1;
+    }
+
+    .card.red {
+      color: var(--card-red);
+    }
+
+    .card.black {
+      color: var(--card-black);
+    }
+
+    .tiebreak-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px 12px;
+      font-size: 8pt;
+      margin-top: 6px;
+    }
+
+    .tiebreak-box {
+      border: 1px solid var(--border);
+      padding: 6px 8px;
+      background: #fafcfa;
+      page-break-inside: avoid;
+    }
+
+    .tiebreak-box h3 {
+      margin: 0 0 4px;
+      font-size: 9pt;
+      color: var(--head);
+    }
+
+    .tiebreak-box h3 .km {
+      font-family: "Noto Sans Khmer", sans-serif;
+      font-weight: 600;
+      font-size: 8.5pt;
+    }
+
+    .tiebreak-box ul {
+      margin: 4px 0 0;
+      padding-left: 1.1em;
+    }
+
+    .tiebreak-box li {
+      margin-bottom: 3px;
+    }
+
+    .tiebreak-box .km-block {
+      font-family: "Noto Sans Khmer", sans-serif;
+      font-size: 7.8pt;
+      color: #333;
+      margin-top: 4px;
+      padding-top: 4px;
+      border-top: 1px dashed var(--border);
+    }
+
+    .cases-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 7.8pt;
+      margin-top: 6px;
+    }
+
+    .cases-table th,
+    .cases-table td {
+      border: 1px solid var(--border);
+      padding: 4px 5px;
+      vertical-align: top;
+    }
+
+    .cases-table th {
+      background: #e8eeea;
+      font-weight: 600;
+      text-align: left;
+    }
+
+    .cases-table .km {
+      font-family: "Noto Sans Khmer", sans-serif;
+    }
+
+    footer {
+      margin-top: 10px;
+      padding-top: 6px;
+      border-top: 1px solid var(--border);
+      font-size: 7.5pt;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    @media print {
+      body {
+        background: #fff;
+      }
+      .sheet {
+        padding: 0;
+        max-width: none;
+      }
+      h2 {
+        page-break-after: avoid;
+      }
+      .tiebreak-box {
+        break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="sheet">
+    <header>
+      <h1>Texas Hold'em — Hand Rankings</h1>
+      <div class="km">ចំណាត់ថ្នាក់ដៃកាត តេចាស់ ហូលដឹម</div>
+      <p>Best (1) → weakest (10) &nbsp;|&nbsp; Standard 52-card deck · Ace high or low only in 5-high straight (wheel)</p>
+    </header>
+
+    <p class="note">
+      <strong>EN:</strong> The best five-card hand wins. When categories match, compare by the rules below (kickers), not by suit.<br />
+      <strong>KM:</strong> ដៃកាតប្រាំល្អបំផុតឈ្នះ។ ពេលឈ្មោះដៃដូចគ្នា ប្រៀបធៀបតាមច្បាប់ខាងក្រោម (kicker) មិនមែនតាមឈាង។
+    </p>
+
+    <table class="rankings">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>English</th>
+          <th>ភាសាខ្មែរ (Khmer)</th>
+          <th>Example (5 cards) / ឧទាហរណ៍</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="rank">1</td>
+          <td class="en">Royal Flush</td>
+          <td class="km">រ៉ូយ៉ាល ហ្វ្លាស — A K Q J 10 ឈាងដូចគ្នា</td>
+          <td>
+            <div class="hand-visual" role="img" aria-label="Royal flush: spades A K Q J 10">
+              <div class="card black"><span class="corner">A<br />♠</span><span class="center-suit">♠</span></div>
+              <div class="card black"><span class="corner">K<br />♠</span><span class="center-suit">♠</span></div>
+              <div class="card black"><span class="corner">Q<br />♠</span><span class="center-suit">♠</span></div>
+              <div class="card black"><span class="corner">J<br />♠</span><span class="center-suit">♠</span></div>
+              <div class="card black" title="Ten of spades"><span class="corner"><span class="tiny">10</span><br />♠</span><span class="center-suit">♠</span></div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="rank">2</td>
+          <td class="en">Straight Flush</td>
+          <td class="km">ស្ត្រេត ហ្វ្លាស — លេខរៀងគ្នា ឈាងដូចគ្នា</td>
+          <td>
+            <div class="hand-visual" role="img" aria-label="Straight flush: hearts 9 through 5">
+              <div class="card red"><span class="corner">9<br />♥</span><span class="center-suit">♥</span></div>
+              <div class="card red"><span class="corner">8<br />♥</span><span class="center-suit">♥</span></div>
+              <div class="card red"><span class="corner">7<br />♥</span><span class="center-suit">♥</span></div>
+              <div class="card red"><span class="corner">6<br />♥</span><span class="center-suit">♥</span></div>
+              <div class="card red"><span class="corner">5<br />♥</span><span class="center-suit">♥</span></div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="rank">3</td>
+          <td class="en">Four of a Kind</td>
+          <td class="km">បួនដូចគ្នា (quads)</td>
+          <td>
+            <div class="hand-visual" role="img" aria-label="Four sevens and king kicker">
+              <div class="card black"><span class="corner">7<br />♣</span><span class="center-suit">♣</span></div>
+              <div class="card red"><span class="corner">7<br />♦</span><span class="center-suit">♦</span></div>
+              <div class="card red"><span class="corner">7<br />♥</span><span class="center-suit">♥</span></div>
+              <div class="card black"><span class="corner">7<br />♠</span><span class="center-suit">♠</span></div>
+              <div class="card red"><span class="corner">K<br />♦</span><span class="center-suit">♦</span></div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="rank">4</td>
+          <td class="en">Full House</td>
+          <td class="km">ហោសពេញ — បី + គូ</td>
+          <td>
+            <div class="hand-visual" role="img" aria-label="Full house: three jacks and two fours">
+              <div class="card black"><span class="corner">J<br />♠</span><span class="center-suit">♠</span></div>
+              <div class="card black"><span class="corner">J<br />♣</span><span class="center-suit">♣</span></div>
+              <div class="card red"><span class="corner">J<br />♥</span><span class="center-suit">♥</span></div>
+              <div class="card red"><span class="corner">4<br />♦</span><span class="center-suit">♦</span></div>
+              <div class="card black"><span class="corner">4<br />♣</span><span class="center-suit">♣</span></div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="rank">5</td>
+          <td class="en">Flush</td>
+          <td class="km">ហ្វ្លាស — កាតប្រាំឈាងដូចគ្នា</td>
+          <td>
+            <div class="hand-visual" role="img" aria-label="Diamond flush">
+              <div class="card red"><span class="corner">A<br />♦</span><span class="center-suit">♦</span></div>
+              <div class="card red"><span class="corner">J<br />♦</span><span class="center-suit">♦</span></div>
+              <div class="card red"><span class="corner">9<br />♦</span><span class="center-suit">♦</span></div>
+              <div class="card red"><span class="corner">6<br />♦</span><span class="center-suit">♦</span></div>
+              <div class="card red"><span class="corner">2<br />♦</span><span class="center-suit">♦</span></div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="rank">6</td>
+          <td class="en">Straight</td>
+          <td class="km">ស្ត្រេត — លេខរៀងគ្នា ឈាងផ្សេងគ្នា</td>
+          <td>
+            <div class="hand-visual" role="img" aria-label="Straight ten to six mixed suits">
+              <div class="card black" title="Ten of clubs"><span class="corner"><span class="tiny">10</span><br />♣</span><span class="center-suit">♣</span></div>
+              <div class="card red"><span class="corner">9<br />♦</span><span class="center-suit">♦</span></div>
+              <div class="card red"><span class="corner">8<br />♥</span><span class="center-suit">♥</span></div>
+              <div class="card black"><span class="corner">7<br />♠</span><span class="center-suit">♠</span></div>
+              <div class="card black"><span class="corner">6<br />♣</span><span class="center-suit">♣</span></div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="rank">7</td>
+          <td class="en">Three of a Kind</td>
+          <td class="km">បីដូចគ្នា</td>
+          <td>
+            <div class="hand-visual" role="img" aria-label="Three fives with Q8 kickers">
+              <div class="card black"><span class="corner">5<br />♠</span><span class="center-suit">♠</span></div>
+              <div class="card red"><span class="corner">5<br />♥</span><span class="center-suit">♥</span></div>
+              <div class="card red"><span class="corner">5<br />♦</span><span class="center-suit">♦</span></div>
+              <div class="card black"><span class="corner">Q<br />♣</span><span class="center-suit">♣</span></div>
+              <div class="card red"><span class="corner">8<br />♥</span><span class="center-suit">♥</span></div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="rank">8</td>
+          <td class="en">Two Pair</td>
+          <td class="km">គូពីរ</td>
+          <td>
+            <div class="hand-visual" role="img" aria-label="Aces and nines with king kicker">
+              <div class="card black"><span class="corner">A<br />♣</span><span class="center-suit">♣</span></div>
+              <div class="card red"><span class="corner">A<br />♦</span><span class="center-suit">♦</span></div>
+              <div class="card black"><span class="corner">9<br />♠</span><span class="center-suit">♠</span></div>
+              <div class="card red"><span class="corner">9<br />♥</span><span class="center-suit">♥</span></div>
+              <div class="card black"><span class="corner">K<br />♣</span><span class="center-suit">♣</span></div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="rank">9</td>
+          <td class="en">One Pair</td>
+          <td class="km">គូមួយ</td>
+          <td>
+            <div class="hand-visual" role="img" aria-label="Pair of kings with T63 kickers">
+              <div class="card black"><span class="corner">K<br />♠</span><span class="center-suit">♠</span></div>
+              <div class="card red"><span class="corner">K<br />♥</span><span class="center-suit">♥</span></div>
+              <div class="card red" title="Ten of diamonds"><span class="corner"><span class="tiny">10</span><br />♦</span><span class="center-suit">♦</span></div>
+              <div class="card black"><span class="corner">6<br />♣</span><span class="center-suit">♣</span></div>
+              <div class="card black"><span class="corner">3<br />♠</span><span class="center-suit">♠</span></div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="rank">10</td>
+          <td class="en">High Card</td>
+          <td class="km">កាតខ្ពស់</td>
+          <td>
+            <div class="hand-visual" role="img" aria-label="Ace high no pair">
+              <div class="card black"><span class="corner">A<br />♣</span><span class="center-suit">♣</span></div>
+              <div class="card red"><span class="corner">Q<br />♦</span><span class="center-suit">♦</span></div>
+              <div class="card red"><span class="corner">9<br />♥</span><span class="center-suit">♥</span></div>
+              <div class="card black"><span class="corner">6<br />♠</span><span class="center-suit">♠</span></div>
+              <div class="card red"><span class="corner">2<br />♦</span><span class="center-suit">♦</span></div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Tie-breaking &amp; kickers <span class="km">ការប្រៀបធៀបពេលដូចគ្នា និង kicker</span></h2>
+
+    <div class="tiebreak-grid">
+      <div class="tiebreak-box">
+        <h3>Suits (♠ ♥ ♦ ♣) <span class="km">ឈាង ឬ suit</span></h3>
+        <ul>
+          <li><strong>Standard Texas Hold'em:</strong> All suits are equal. Suit order <em>never</em> decides the winner at showdown.</li>
+          <li>If two players have the <strong>same best five ranks</strong> (same category and same kickers), the pot is <strong>split</strong> — e.g. both hold Ace-high flush with identical ranks: <strong>chop</strong>, even if one is spades and one is hearts.</li>
+        </ul>
+        <div class="km-block">
+          <strong>KM:</strong> ក្នុងតេចាស់ ហូលដឹមស្តង់ដារ ឈាងបួនមិនមានឋានៈខ្ពស់ទាបទេ។ មិនអាចនិយាយថា ♠ ឈ្នះ ♥។ បើកាតប្រាំដូចគ្នាទាំងស្រុង បំណែក (pot) ចែកពាក់កណ្តាល (chop)។
+        </div>
+      </div>
+      <div class="tiebreak-box">
+        <h3>Same hand type — comparison order <span class="km">ដូចគ្នាតាមប្រភេទ</span></h3>
+        <ul>
+          <li><strong>Royal / straight flush:</strong> Higher top card of the straight wins (RF ties only chop).</li>
+          <li><strong>Four of a kind:</strong> Higher quad, then kicker.</li>
+          <li><strong>Full house:</strong> Higher three-of-a-kind, then higher pair.</li>
+          <li><strong>Flush / straight / high card:</strong> Compare highest card, then next down, until one card differs.</li>
+          <li><strong>Three of a kind:</strong> Higher trips, then higher kicker, then next kicker.</li>
+          <li><strong>Two pair:</strong> Higher top pair → higher second pair → kicker.</li>
+          <li><strong>One pair:</strong> Higher pair, then three kickers in order.</li>
+        </ul>
+        <div class="km-block">
+          <strong>KM:</strong> ប្រៀបធៀបតាម “កាតសំខាន់” មុន រួចបន្តតាមកាតជំនួយ (kicker) ពីខ្ពស់ទៅទាប រហូតរកឃើញភាពខុសគ្នា។
+        </div>
+      </div>
+    </div>
+
+    <table class="cases-table">
+      <caption style="caption-side: top; text-align: left; font-weight: 700; padding-bottom: 4px; font-size: 8.5pt;">
+        Typical cases (same category) / ឧទាហរណ៍សាមញ្ញ
+      </caption>
+      <thead>
+        <tr>
+          <th>Case</th>
+          <th>Winner logic</th>
+          <th class="km">ខ្មែរ</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Both flush, same high cards down to the 5th</td>
+          <td>Split pot (suits irrelevant).</td>
+          <td class="km">ចែកបំណែក — ឈាងមិនចាំបាច់</td>
+        </tr>
+        <tr>
+          <td>Both flush, A J 9 6 3 vs A J 9 6 <strong>2</strong></td>
+          <td>Second wins (higher 5th card: 3 &gt; 2).</td>
+          <td class="km">ឈ្នះដៃដែលមានកាតទី 5 ខ្ពស់ជាង (3 &gt; 2)</td>
+        </tr>
+        <tr>
+          <td>Both one pair K K, kickers 10 7 4 vs K K 10 <strong>8</strong> 4</td>
+          <td>Second wins (first kicker after pair: 8 &gt; 7).</td>
+          <td class="km">ប្រៀបធៀប kicker ដំបូងបន្ទាប់ពីគូ (8 &gt; 7)</td>
+        </tr>
+        <tr>
+          <td>Both two pair A A 9 9 K vs A A 9 9 <strong>Q</strong></td>
+          <td>Split (both pairs identical); compare kicker: K &gt; Q → first wins.</td>
+          <td class="km">គូពីរដូចគ្នា ប្រៀប kicker — K ឈ្នះ Q</td>
+        </tr>
+        <tr>
+          <td>Same full house J J J 4 4 vs <strong>Q Q Q</strong> 4 4</td>
+          <td>Second wins (higher three-of-a-kind).</td>
+          <td class="km">ប្រៀបបីដូចគ្នាមុន — Q ឈ្នះ J</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <footer>
+      Texas Hold'em: best five of seven (2 hole + 5 community). For the button or seat draw, the house may use one suit order — that is <strong>not</strong> used for hand strength.<br />
+      <span class="km" style="font-size: 7.8pt">តេចាស់ ហូលដឹម៖ យកកាតប្រាំល្អបំផុត។ ការចាប់ឈាងសម្រាប់ប៊ូតុង/កៅអី ជារឿងផ្សេង មិនប្រើវាសម្រេចដៃឈ្នះ។</span>
+    </footer>
+  </div>
+</body>
+</html>

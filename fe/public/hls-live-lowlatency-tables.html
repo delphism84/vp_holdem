@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>저지연 HLS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0a0b0f;
+      --bg2: #12141c;
+      --panel: #181b26;
+      --border: #2a2f3f;
+      --text: #e8eaef;
+      --muted: #8b92a5;
+      --gold: #d4a853;
+      --gold-dim: #8a7038;
+      --live: #34d399;
+      --err: #f87171;
+      --radius: 10px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Outfit", system-ui, sans-serif;
+      background: var(--bg);
+      background-image:
+        radial-gradient(ellipse 120% 80% at 100% 0%, rgba(212, 168, 83, 0.06), transparent 50%),
+        radial-gradient(ellipse 80% 60% at 0% 100%, rgba(91, 155, 213, 0.05), transparent 45%);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.45;
+    }
+    .shell {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 20px 16px 32px;
+    }
+    header {
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 16px;
+    }
+    header h1 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin: 0 0 6px;
+      letter-spacing: -0.02em;
+    }
+    header h1 span { color: var(--gold); }
+    .lead {
+      font-size: 0.82rem;
+      color: var(--muted);
+      max-width: 720px;
+      margin: 0;
+    }
+    .lead code {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.78rem;
+      background: var(--panel);
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+    }
+    .sync-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px 20px;
+      margin-bottom: 16px;
+      padding: 14px 16px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+    .sync-bar label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--gold);
+    }
+    .sync-bar input[type="range"] {
+      width: min(280px, 100%);
+      accent-color: var(--gold);
+    }
+    .sync-val {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.9rem;
+      color: var(--live);
+      min-width: 4.5em;
+    }
+    .url-row {
+      display: flex;
+      align-items: stretch;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding: 12px 14px;
+      margin-bottom: 16px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+    .url-row label {
+      flex: 0 0 100%;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--muted);
+    }
+    .url-row input[type="url"] {
+      flex: 1 1 200px;
+      min-width: 0;
+      padding: 10px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 0.82rem;
+      font-family: "IBM Plex Mono", monospace;
+    }
+    .url-row input::placeholder { color: #5c6378; }
+    .url-row .btn-play {
+      flex: 0 0 auto;
+      padding: 10px 18px;
+      border-radius: 6px;
+      border: 1px solid #3d5f80;
+      background: linear-gradient(145deg, #2d4a66, #1e3548);
+      color: #e8f0f8;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .url-row .btn-play:hover { filter: brightness(1.08); }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .toolbar button {
+      padding: 8px 14px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--muted);
+      font-size: 0.8rem;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .toolbar button:hover { color: var(--text); }
+    .layout-main {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    @media (min-width: 900px) {
+      .layout-main {
+        grid-template-columns: 1fr 280px;
+        align-items: start;
+      }
+    }
+    .video-box {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #000;
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      vertical-align: middle;
+    }
+    .video-badge {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      padding: 4px 10px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      background: rgba(212, 168, 83, 0.92);
+      color: #0a0b0f;
+      border-radius: 4px;
+    }
+    .video-badge.playing {
+      background: rgba(52, 211, 153, 0.92);
+    }
+    .side {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      font-size: 0.72rem;
+    }
+    .stat {
+      padding: 8px 10px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+    .stat k {
+      display: block;
+      color: var(--muted);
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 3px;
+    }
+    .log {
+      padding: 10px 12px;
+      background: #06070a;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 10px;
+      line-height: 1.45;
+      max-height: 180px;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+      color: var(--muted);
+    }
+    .log .ok { color: var(--live); }
+    .log .warn { color: #fbbf24; }
+    .log .err { color: var(--err); }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <h1>저지연 HLS <span>플레이어</span></h1>
+      <p class="lead">
+        <strong>최저 지연 프리셋:</strong> <code>liveSyncDuration</code> 기본 <strong>0.5초</strong>, 버퍼·최대 지연 천장·재생 속도 보정을 hls.js 기준으로 타이트하게 잡았습니다.
+        슬라이더로 0.5~1초 사이만 조정 가능합니다. Chrome/Edge 권장. Safari는 네이티브 HLS라 동기 적용이 제한됩니다.
+      </p>
+    </header>
+
+    <div class="sync-bar">
+      <label for="syncRange">라이브 동기 창 (초) · 최저</label>
+      <input type="range" id="syncRange" min="0.5" max="1" step="0.05" value="0.5" />
+      <span class="sync-val" id="syncVal">0.50s</span>
+      <span style="font-size:0.78rem;color:var(--muted);">재생 중 변경 시 다음 재생부터 적용</span>
+    </div>
+
+    <div class="url-row">
+      <label for="url">m3u8 URL</label>
+      <input type="url" id="url" autocomplete="off"
+        value="https://stream.kingofzeusfin.com/live/table11_01.m3u8"
+        placeholder="https://stream.kingofzeusfin.com/live/…" />
+      <button type="button" class="btn-play" id="btnPlay">재생</button>
+    </div>
+
+    <div class="toolbar">
+      <button type="button" id="btnSave">URL 로컬 저장</button>
+      <button type="button" id="btnClear">기본값으로</button>
+      <button type="button" id="btnStop">중지</button>
+    </div>
+
+    <div class="layout-main">
+      <div>
+        <div class="video-box">
+          <span class="video-badge" id="activeBadge">대기</span>
+          <video id="v" playsinline controls muted></video>
+        </div>
+      </div>
+      <div class="side">
+        <div class="stats" id="stats"></div>
+        <div class="log" id="log" aria-live="polite"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.7/dist/hls.min.js"></script>
+  <script>
+(function () {
+  var DEFAULT_M3U8 = "https://stream.kingofzeusfin.com/live/table11_01.m3u8";
+  var STORAGE_KEY = "hlsLowLatencySingleV1";
+  var video = document.getElementById("v");
+  var urlInput = document.getElementById("url");
+  var logEl = document.getElementById("log");
+  var statsEl = document.getElementById("stats");
+  var activeBadge = document.getElementById("activeBadge");
+  var syncRange = document.getElementById("syncRange");
+  var syncVal = document.getElementById("syncVal");
+  var hls = null;
+  var playing = false;
+  var logLines = 0;
+  var MAX_LOG = 120;
+
+  function getSyncSeconds() {
+    return parseFloat(syncRange.value, 10) || 0.5;
+  }
+
+  syncRange.addEventListener("input", function () {
+    syncVal.textContent = getSyncSeconds().toFixed(2) + "s";
+  });
+  syncVal.textContent = getSyncSeconds().toFixed(2) + "s";
+
+  function log(msg, cls) {
+    if (logLines >= MAX_LOG) {
+      logEl.removeChild(logEl.firstChild);
+      logLines--;
+    }
+    var span = document.createElement("div");
+    span.className = cls || "";
+    span.textContent = new Date().toISOString().slice(11, 23) + " " + msg;
+    logEl.appendChild(span);
+    logLines++;
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  function destroyHls() {
+    if (hls) {
+      try { hls.destroy(); } catch (e) {}
+      hls = null;
+    }
+    video.removeAttribute("src");
+    try { video.load(); } catch (e) {}
+  }
+
+  function setBadge(playingNow) {
+    playing = playingNow;
+    activeBadge.classList.toggle("playing", playingNow);
+    activeBadge.textContent = playingNow ? "LIVE" : "대기";
+  }
+
+  /**
+   * 최저 지연: liveSyncDuration(슬라이더) + 짧은 버퍼·낮은 지연 천장·빠른 엣지 추격
+   */
+  function buildHlsConfig() {
+    var syncSec = getSyncSeconds();
+    var maxLat = Math.max(syncSec * 1.65, 0.95);
+    return {
+      lowLatencyMode: false,
+      liveSyncDuration: syncSec,
+      liveMaxLatencyDuration: maxLat,
+      maxLiveSyncPlaybackRate: 2.05,
+      maxBufferLength: Math.min(Math.max(syncSec * 4, 3.5), 10),
+      maxMaxBufferLength: 22,
+      backBufferLength: 12,
+      maxBufferHole: 0.12,
+      highBufferWatchdogPeriod: 0.5,
+      nudgeOffset: 0.02,
+      nudgeMaxRetry: 8,
+      manifestLoadingTimeOut: 15000,
+      manifestLoadingMaxRetry: 6,
+      levelLoadingTimeOut: 15000,
+      fragLoadingTimeOut: 18000,
+      fragLoadingMaxRetry: 8,
+      startFragPrefetch: false,
+      testBandwidth: false,
+      capLevelToPlayerSize: false,
+      enableWorker: true,
+      xhrSetup: function (xhr) {
+        xhr.withCredentials = false;
+      },
+    };
+  }
+
+  function statRow(key, val) {
+    var d = document.createElement("div");
+    d.className = "stat";
+    d.innerHTML = "<k>" + key + "</k>" + String(val);
+    return d;
+  }
+
+  function updateStats() {
+    statsEl.innerHTML = "";
+    var buf = "—";
+    if (video.buffered.length) {
+      buf = (video.buffered.end(video.buffered.length - 1) - video.currentTime).toFixed(2);
+    }
+    statsEl.appendChild(statRow("동기 목표", getSyncSeconds().toFixed(2) + "s"));
+    statsEl.appendChild(statRow("앞 버퍼(s)", buf));
+    statsEl.appendChild(statRow("readyState", String(video.readyState)));
+    statsEl.appendChild(statRow("network", String(video.networkState)));
+    if (hls && hls.levels && hls.currentLevel >= 0) {
+      var lv = hls.levels[hls.currentLevel];
+      statsEl.appendChild(statRow("해상도", (lv.height || "?") + "p"));
+    }
+  }
+
+  setInterval(updateStats, 400);
+
+  function play() {
+    var url = (urlInput.value || "").trim();
+    if (!url) {
+      log("URL을 입력하세요.", "warn");
+      return;
+    }
+    destroyHls();
+    setBadge(false);
+    log("재생 → " + url, "ok");
+
+    if (video.canPlayType("application/vnd.apple.mpegurl")) {
+      log("네이티브 HLS(Safari): 저지연 슬라이더는 hls.js 전용.", "warn");
+      video.src = url;
+      video.play().then(function () { setBadge(true); }).catch(function (e) { log("play error: " + e, "err"); });
+      return;
+    }
+
+    if (typeof Hls === "undefined" || !Hls.isSupported()) {
+      log("hls.js 미지원 브라우저입니다.", "err");
+      return;
+    }
+
+    hls = new Hls(buildHlsConfig());
+    hls.attachMedia(video);
+
+    hls.on(Hls.Events.MANIFEST_PARSED, function () {
+      log("MANIFEST_PARSED (sync=" + getSyncSeconds() + "s)", "ok");
+      video.play().then(function () { setBadge(true); }).catch(function (e) { log("play error: " + e, "err"); });
+    });
+
+    hls.on(Hls.Events.ERROR, function (ev, data) {
+      var fatal = data && data.fatal;
+      var t = (data && data.type) || "";
+      var details = (data && data.details) || "";
+      log("ERROR " + t + " " + details + (fatal ? " FATAL" : ""), fatal ? "err" : "warn");
+      if (fatal && data) {
+        if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
+          hls.startLoad();
+        } else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
+          hls.recoverMediaError();
+        }
+      }
+    });
+
+    hls.loadSource(url);
+  }
+
+  function stop() {
+    destroyHls();
+    setBadge(false);
+    log("중지", "");
+  }
+
+  function saveUrl() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        url: (urlInput.value || "").trim() || DEFAULT_M3U8,
+        sync: getSyncSeconds(),
+      }));
+      log("저장 완료 (로컬)", "ok");
+    } catch (e) {
+      log("저장 실패: " + e, "err");
+    }
+  }
+
+  function loadSaved() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      var data = JSON.parse(raw);
+      if (data.sync != null) {
+        var s = parseFloat(data.sync, 10);
+        if (s >= 0.5 && s <= 1) {
+          syncRange.value = String(s);
+          syncVal.textContent = s.toFixed(2) + "s";
+        }
+      }
+      if (data.url && typeof data.url === "string") {
+        urlInput.value = data.url;
+        log("로컬 저장 URL 불러옴", "ok");
+      }
+    } catch (e) {}
+  }
+
+  function resetToDefault() {
+    urlInput.value = DEFAULT_M3U8;
+    log("기본 m3u8로 설정", "");
+  }
+
+  document.getElementById("btnPlay").addEventListener("click", play);
+  document.getElementById("btnSave").addEventListener("click", saveUrl);
+  document.getElementById("btnClear").addEventListener("click", resetToDefault);
+  document.getElementById("btnStop").addEventListener("click", stop);
+
+  video.addEventListener("ended", function () {
+    setBadge(false);
+    log("ended", "");
+  });
+
+  loadSaved();
+  log("최저 지연 프리셋. «재생»으로 시작. 기본 URL: table11_01.m3u8", "");
+})();
+  </script>
+</body>
+</html>
